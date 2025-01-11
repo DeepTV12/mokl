@@ -22,7 +22,7 @@ HEADERS_TEMPLATE = {
     "sec-fetch-site": "same-site",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 }
-WAIT_TIME = 5 * 60  # 5 minutes
+WAIT_TIME = 0.3 * 60  # 5 minutes
 TASKS_FILE = "completed_tasks.json"
 
 def read_authorizations(file_path):
@@ -52,7 +52,7 @@ def make_tap_request(auth_token):
     headers["authorization"] = f"Bearer {auth_token}"
 
     data = {
-        "count": random.randint(270, 330),  # Random number between 270-330
+        "count": random.randint(470, 500),  # Random number between 270-330
         "energy": 500,
         "timestamp": int(time.time())  # Current timestamp
     }
@@ -60,7 +60,7 @@ def make_tap_request(auth_token):
     try:
         response = requests.post(TAP_URL, headers=headers, data=json.dumps(data))
         if response.status_code == 200:
-            print(f"[✔] Tap Success for token: {auth_token}")
+            print(f"[✔] Tap Success for token: {auth_token}  {time.ctime()}")
         else:
             print(f"[✖] Tap Failed for token: {auth_token}, Status: {response.status_code}, Response: {response.text}")
     except requests.RequestException as e:
@@ -91,6 +91,20 @@ def make_task_requests_once(auth_token, completed_tasks):
         except requests.RequestException as e:
             print(f"[!] Task Request error for token {auth_token}: {e}")
 
+def make_sync_request(auth_token):
+    """Send the sync request."""
+    headers = HEADERS_TEMPLATE.copy()
+    headers["authorization"] = f"Bearer {auth_token}"
+
+    try:
+        response = requests.get("https://api.mokl.io/public/api/clicker/sync", headers=headers)
+        if response.status_code == 200:
+            print(f"[✔] Sync Success for token: {auth_token}")
+        else:
+            print(f"[✖] Sync Failed for token: {auth_token}, Status: {response.status_code}, Response: {response.text}")
+    except requests.RequestException as e:
+        print(f"[!] Sync Request error for token {auth_token}: {e}")
+
 def main():
     """Main script logic."""
     file_path = "datas.txt"
@@ -107,10 +121,11 @@ def main():
 
     while True:
         for token in authorizations:
+            make_sync_request(token)  # Sync before the tap request
             make_tap_request(token)  # Keep doing the tap request every 5 minutes
-            time.sleep(random.randint(2,5))
+            time.sleep(random.randint(2, 5))
 
-        print(f"[*] Waiting for {WAIT_TIME // 60} minutes before next cycle....Subscribe to DeepTV...")
+        print(f"[*] Waiting for {WAIT_TIME // 60} minutes before next cycle....Subscribe to DeepTV to make a fortune with us....")
         time.sleep(WAIT_TIME)
 
 if __name__ == "__main__":
