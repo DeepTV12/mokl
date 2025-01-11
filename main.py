@@ -67,6 +67,7 @@ def main():
 
         for token in authorizations:
             make_request(token)
+            time.sleep(random.randint(2,5))
 
         print(f"[*] Waiting for {WAIT_TIME // 60} minutes before next cycle...")
         time.sleep(WAIT_TIME)
