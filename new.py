@@ -108,6 +108,7 @@ def main():
     while True:
         for token in authorizations:
             make_tap_request(token)  # Keep doing the tap request every 5 minutes
+            time.sleep(random.randint(2,5))
 
         print(f"[*] Waiting for {WAIT_TIME // 60} minutes before next cycle....Subscribe to DeepTV...")
         time.sleep(WAIT_TIME)
